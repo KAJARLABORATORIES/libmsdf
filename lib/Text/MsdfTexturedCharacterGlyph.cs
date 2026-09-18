@@ -30,11 +30,19 @@ public readonly struct MsdfTexturedCharacterGlyph : ITexturedCharacterGlyph
 
         Character = character;
         Texture = texture;
+
+        var lineHeight = source.LineHeight;
+        var planeBounds = glyph.PlaneBounds ?? default;
+
+        Width = planeBounds.Width / lineHeight;
+        Height = planeBounds.Height / lineHeight;
+        XOffset = planeBounds.Left / lineHeight;
+        YOffset = (planeBounds.Top - source.Ascender) / lineHeight;
+
+        XAdvance = glyph.Advance / lineHeight;
     }
 
     public float GetKerning<T>(T lastGlyph)
         where T : ICharacterGlyph
-    {
-        throw new NotImplementedException();
-    }
+        => source.Kerning.TryGetValue((lastGlyph.Character, Character), out var kerning) ? kerning / source.LineHeight : 0;
 }
