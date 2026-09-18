@@ -44,7 +44,7 @@
     <Product>KAJAR LABORATORIES MSDF Text Rendering for osu!framework</Product>
     <PackageReleaseNotes>Automated release.</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/KAJARLABORATORIES/osu-framework-msdf</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/KAJARLABORATORIES/osu-framework=msdf</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/KAJARLABORATORIES/libmsdf</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/KAJARLABORATORIES/libmsdf</RepositoryUrl>
   </PropertyGroup>
 </Project>
