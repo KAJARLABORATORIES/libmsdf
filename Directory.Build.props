@@ -1,0 +1,50 @@
+﻿<Project>
+  <PropertyGroup Label="C#">
+		<TargetFramework>net10.0</TargetFramework>
+
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<AnalysisLevel>latest</AnalysisLevel>
+
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);CS1591;CA1054;CA1056</NoWarn>
+	</PropertyGroup>
+  <ItemGroup Label="Code Analysis">
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" PrivateAssets="All" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)analysis\banned-symbols.txt" />
+    <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)analysis\rules.globalconfig" />
+  </ItemGroup>
+  <ItemGroup Label="Icon">
+    <None Include="$(MSBuildThisFileDirectory).github\assets\nupkg.png" Pack="true" PackagePath="icon.png" Visible="false" />
+  </ItemGroup>
+  <PropertyGroup Label="Code Analysis">
+    <AnalysisMode>Default</AnalysisMode>
+    <AnalysisModeDesign>Default</AnalysisModeDesign>
+    <AnalysisModeDocumentation>Recommended</AnalysisModeDocumentation>
+    <AnalysisModeGlobalization>Recommended</AnalysisModeGlobalization>
+    <AnalysisModeInteroperability>Recommended</AnalysisModeInteroperability>
+    <AnalysisModeMaintainability>Recommended</AnalysisModeMaintainability>
+    <AnalysisModeNaming>Default</AnalysisModeNaming>
+    <AnalysisModePerformance>Minimum</AnalysisModePerformance>
+    <AnalysisModeReliability>Recommended</AnalysisModeReliability>
+    <AnalysisModeSecurity>Default</AnalysisModeSecurity>
+    <AnalysisModeUsage>Default</AnalysisModeUsage>
+  </PropertyGroup>
+  <PropertyGroup Label="NuGet">
+    <Authors>KAJAR LABORATORIES</Authors>
+    <Company>KAJAR LABORATORIES</Company>
+    <Copyright>Copyright (c) 2026 KAJAR LABORATORIES</Copyright>
+    <Product>KAJAR LABORATORIES MSDF Text Rendering for osu!framework</Product>
+    <PackageReleaseNotes>Automated release.</PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/KAJARLABORATORIES/osu-framework-msdf</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/KAJARLABORATORIES/osu-framework=msdf</RepositoryUrl>
+  </PropertyGroup>
+</Project>

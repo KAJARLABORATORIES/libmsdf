@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup Label="Package References">
+    <PackageReference Include="ppy.osu.Framework" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources/**/*" />
+  </ItemGroup>
+</Project>

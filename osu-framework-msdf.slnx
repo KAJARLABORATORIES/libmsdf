@@ -1,0 +1,8 @@
+﻿<Solution>
+  <Folder Name="/Additional Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Project Path="lib/kajarlabs.osu.Framework.MsdfTextRendering.csproj" />
+  <Project Path="tests/kajarlabs.osu.Framework.MsdfTextRendering.Tests.csproj" />
+</Solution>
