@@ -17,14 +17,14 @@ public abstract partial class MsdfComparisonTestScene : SampleTestScene
     private const float min_zoom = 0.5f;
     private const float max_zoom = 32f;
 
-    private readonly BindableNumber<float> zoom = new BindableNumber<float>(1f)
+    private readonly BindableNumber<float> zoom = new(1f)
     {
         MinValue = min_zoom,
         MaxValue = max_zoom,
         Precision = 0.01f,
     };
 
-    private readonly Bindable<Vector2> pan = new Bindable<Vector2>();
+    private readonly Bindable<Vector2> pan = new();
 
     private SpriteText zoomValueText = null!;
 

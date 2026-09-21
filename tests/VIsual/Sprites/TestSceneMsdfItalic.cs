@@ -22,7 +22,7 @@ public partial class TestSceneMsdfItalic : MsdfComparisonTestScene
         text => new MsdfSpriteText { Anchor = Anchor.TopCentre, Origin = Anchor.TopCentre, Text = text },
         (drawable, italics) => ((MsdfSpriteText)drawable).Font = new FontUsage("WorkSans", demo_font_size, "Regular", italics));
 
-    private static Drawable createFlow(Func<string, Drawable> create, Action<Drawable, bool> setFont)
+    private static FillFlowContainer createFlow(Func<string, Drawable> create, Action<Drawable, bool> setFont)
     {
         var upright = create($"Regular: {demo_text}");
         var italic = create($"Italic: {demo_text}");
@@ -37,7 +37,7 @@ public partial class TestSceneMsdfItalic : MsdfComparisonTestScene
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
             Spacing = new Vector2(0, 16),
-            Children = new[] { upright, italic },
+            Children = [upright, italic],
         };
     }
 }
