@@ -1,154 +1,57 @@
 # libmsdf
-
+ 
+[![Build status](https://github.com/KAJARLABORATORIES/libmsdf/actions/workflows/release.yml/badge.svg?branch=main&event=push)](https://github.com/KAJARLABORATORIES/libmsdf/actions/workflows/release.yml)
 [![NuGet](https://img.shields.io/nuget/vpre/kajarlabs.osu.Framework.MsdfTextRendering.svg)](https://www.nuget.org/packages/kajarlabs.osu.Framework.MsdfTextRendering)
-[![License](https://img.shields.io/github/license/KAJARLABORATORIES/libmsdf.svg)](https://github.com/KAJARLABORATORIES/libmsdf/blob/main/COPYING)
-
+[![GitHub release](https://img.shields.io/github/v/release/KAJARLABORATORIES/libmsdf?include_prereleases)](https://github.com/KAJARLABORATORIES/libmsdf/releases/latest)
+ 
 MSDF text rendering for [osu!framework](https://github.com/ppy/osu-framework).
-
-`libmsdf` replaces bitmap glyph rendering with [multi-channel signed distance fields](https://github.com/Chlumsky/msdfgen), so text stays sharp at any size or scale. Glyph coverage is reconstructed in the fragment shader instead of being baked into a texture at a fixed resolution.
-
-> **Pre-release.** The current version is `0.1.0-alpha`. The public API is expected to change before `1.0.0`. Pin an exact version if you depend on it.
-
-## Installation
-
-```bash
+ 
+## Using libmsdf in your game
+ 
+If you are interested in **using** the library, install the package and start from the [setting up MSDF fonts](https://github.com/KAJARLABORATORIES/libmsdf/wiki/Setting-Up-MSDF-Fonts) wiki page, which walks through generating an atlas, registering it and drawing text with it.
+ 
+```
 dotnet add package kajarlabs.osu.Framework.MsdfTextRendering --prerelease
 ```
+ 
+The library is pre-`1.0.0`. The public API may change between `0.x` releases, so pin an exact version if you depend on it.
+ 
+The rest of the information on this page is related to working *on* the library, not *using* it!
+ 
+## Objectives
+ 
+osu!framework renders text from pre-rasterised bitmap atlases. That is fast and predictable, but a glyph baked at one size degrades once it is drawn far beyond it, which shows up in any UI that zooms, animates scale, or shares a typeface across a wide range of sizes.
+ 
+`libmsdf` provides a second rendering path built on [multi-channel signed distance fields](https://github.com/Chlumsky/msdfgen), where glyph coverage is reconstructed in the fragment shader instead of sampled from a fixed-resolution texture.
+ 
+- Stay a **drop-in alternative**, not a replacement. `MsdfSpriteText` mirrors `SpriteText`, and MSDF glyphs implement the framework's own glyph abstractions so the existing text builder, layout and localisation keep working.
+- Keep the atlas pipeline **external and standard**. Atlases are produced by [`msdf-atlas-gen`](https://github.com/Chlumsky/msdf-atlas-gen), so nothing here is a bespoke font format.
+- Cover the same text features users already expect: kerning, multiline, truncation, fixed width, fallback glyphs and shadows.
+MSDF is not a free upgrade for every case. At small, static sizes a hinted bitmap font is cheaper and often looks better; this library is aimed at the cases where one atlas has to serve many sizes.
+ 
+## Requirements
+ 
+- A desktop platform with the [.NET 10.0 SDK](https://dotnet.microsoft.com/download).
+- [`msdf-atlas-gen`](https://github.com/Chlumsky/msdf-atlas-gen) for generating font atlases.
+- When working with the codebase, we recommend an IDE with intellisense and syntax highlighting, such as [Visual Studio](https://visualstudio.microsoft.com/vs/), [JetBrains Rider](https://www.jetbrains.com/rider/), or [Visual Studio Code](https://code.visualstudio.com/) with the [EditorConfig](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig) and [C#](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp) extensions installed.
 
-Or, as a `PackageReference`:
-
-```xml
-<PackageReference Include="kajarlabs.osu.Framework.MsdfTextRendering" Version="0.1.0-alpha.2" />
+### Building
+ 
 ```
-
-`--prerelease` is required while the package has no stable release: NuGet hides pre-release versions by default.
-
-## Quick start
-
-Register the MSDF resources and the fonts you want to use, then draw text with `MsdfSpriteText`:
-
-```csharp
-public partial class MsdfShowcase : Game
-{
-    private DependencyContainer dependencies = null!;
-
-    protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
-        => dependencies = new DependencyContainer(parent);
-
-    [BackgroundDependencyLoader]
-    private void load()
-    {
-        MsdfTextRendering.CreateCapabilities(Resources);
-
-        var msdfFonts = new MsdfFontStore(Host.Renderer, Shaders);
-
-        msdfFonts.AddFont(Resources, "WorkSans", "Regular");
-        msdfFonts.AddFont(Resources, "WorkSans", "Bold");
-
-        dependencies.CacheAs(msdfFonts);
-
-        Add(new MsdfSpriteText
-        {
-            Text = "Hello, MSDF!",
-            Font = new FontUsage("WorkSans", 32, "Regular"),
-        });
-    }
-}
+dotnet build
+dotnet test
 ```
-
-`MsdfSpriteText` behaves like `SpriteText`: same layout model, same sizing rules, same localisation support. Only the glyph rendering path differs.
-
-The fonts themselves are not shipped with the package. See the next section.
-
-## Generating font atlases
-
-An MSDF font is an atlas texture plus a JSON metadata file. Both are required, and both are generated with [`msdf-atlas-gen`](https://github.com/Chlumsky/msdf-atlas-gen):
-
-```bash
-msdf-atlas-gen -font WorkSans-Regular.ttf \
-               -type msdf \
-               -format png \
-               -size 48 \
-               -pxrange 4 \
-               -yorigin top \
-               -imageout WorkSans-Regular.png \
-               -json WorkSans-Regular.json
-```
-
-| Option         | Why it matters                                                     |
-| -------------- | ------------------------------------------------------------------ |
-| `-type msdf`   | Multi-channel distance field. `sdf` will not work with the shader. |
-| `-size 48`     | Em size used for generation. Larger means a larger atlas.          |
-| `-pxrange 4`   | Distance range around glyph edges. Too low causes soft corners.    |
-| `-yorigin top` | Matches the coordinate system osu!framework expects.               |
-
-The JSON carries glyph metrics, atlas and plane bounds, kerning pairs, and the `distanceRange` the shader uses to reconstruct coverage.
-
-Generate one pair per weight and style, and name the files after the family and style you pass to `AddFont`:
-
-```text
-Resources/Typefaces/
-└── WorkSans/
-    ├── WorkSans-Regular.png
-    ├── WorkSans-Regular.json
-    ├── WorkSans-Bold.png
-    ├── WorkSans-Bold.json
-    ├── WorkSans-RegularItalic.png
-    └── WorkSans-RegularItalic.json
-```
-
-## What's supported
-
-- Arbitrary sizes and scales without re-rasterisation
-- Font families with weight and italic variants
-- Kerning, baselines and glyph metrics
-- Multiline text, truncation with ellipsis, fixed width
-- Auto-sizing and maximum width
-- Fallback glyphs
-- Shadows
-- Localisation
-- Glyph lookup with caching
-
-## API
-
-### `MsdfSpriteText`
-
-The drawable you use. Mirrors `SpriteText`.
-
-```csharp
-new MsdfSpriteText
-{
-    Text = "The quick brown fox jumps over the lazy dog.",
-    Font = new FontUsage("WorkSans", 24, "Regular"),
-    Shadow = true,
-}
-```
-
-### `MsdfFontStore`
-
-Resolves families and styles to glyphs, and caches them. Register fonts once, at load time:
-
-```csharp
-msdfFonts.AddFont(Resources, "WorkSans", "Regular");
-msdfFonts.AddFont(Resources, "WorkSans", "Bold");
-msdfFonts.AddFont(Resources, "WorkSans", "RegularItalic");
-```
-
-Cache it with `CacheAs` so `MsdfSpriteText` can resolve it through dependency injection.
-
-## Shaders
-
-The package ships two fragment shaders:
-
-| Shader                        | Use                                                       |
-| ----------------------------- | --------------------------------------------------------- |
-| `sh_MsdfGlyph.fs`             | Default. Anti-aliased coverage from the distance field.    |
-| `sh_MsdfGlyphHardThreshold.fs`| Hard cutoff, no anti-aliasing. Useful for pixel-style UI.  |
+ 
+Visual test scenes live in `tests`, and are the recommended place to develop and debug rendering changes: a distance-field bug is something you see, not something an assertion catches.
 
 ## Contributing
-
-Issues and pull requests are welcome. For bug reports, include a minimal reproduction and, where relevant, the atlas and JSON metadata that trigger the problem.
-
+ 
+Contributions can be made via pull requests to this repository. If you are unsure where to start, check the [list of open issues](https://github.com/KAJARLABORATORIES/libmsdf/issues).
+ 
+When reporting a rendering bug, include a minimal reproduction and the atlas and JSON metadata that trigger it. "The glyph looks wrong" is impossible to act on without the distance range it was generated with.
+ 
 ## License
-
-MIT. See [COPYING](https://github.com/KAJARLABORATORIES/libmsdf/blob/main/COPYING).
+ 
+This library is licensed under the [MIT license](https://opensource.org/licenses/MIT). Please see [the license file](../COPYING) for more information. [tl;dr](https://tldrlegal.com/license/mit-license) you can do whatever you want as long as you include the original copyright and license notice in any copy of the software/source.
+ 
+The MSDF technique itself comes from [msdfgen](https://github.com/Chlumsky/msdfgen) by Viktor Chlumský, also MIT licensed. Atlases generated with `msdf-atlas-gen` carry the license of the font they were generated from; check it before shipping one.
