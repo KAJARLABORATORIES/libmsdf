@@ -78,6 +78,10 @@ internal sealed class MsdfGlyphSource : IDisposable
 
     public string FontName { get; }
 
+    public string NormalizedWeight { get; }
+
+    public bool IsItalic { get; }
+
     public IReadOnlyDictionary<char, MsdfGlyph> Glyphs
     {
         get
@@ -116,6 +120,8 @@ internal sealed class MsdfGlyphSource : IDisposable
 
         Family = family;
         FontName = string.IsNullOrEmpty(weight) ? family : $"{family}-{weight}";
+
+        (NormalizedWeight, IsItalic) = ParseStyle(weight);
     }
 
     public void Load()
@@ -165,7 +171,21 @@ internal sealed class MsdfGlyphSource : IDisposable
         loadCompletionSource.SetResult(true);
     }
 
-    public ITexturedCharacterGlyph? Get(char character)
+    public bool HasGlyph(char character)
+    {
+        try
+        {
+            ensureLoaded();
+        }
+        catch
+        {
+            return false;
+        }
+
+        return Glyphs.ContainsKey(character);
+    }
+
+    public ITexturedCharacterGlyph? Get(char character, MsdfGlyphSource? metricsSource = null)
     {
         ensureLoaded();
 
@@ -176,11 +196,25 @@ internal sealed class MsdfGlyphSource : IDisposable
         }
 
         var texture = glyph.AtlasBounds is RectangleF atlasBound ? Atlas.Crop(atlasBound) : Atlas;
-        return new MsdfTexturedCharacterGlyph(this, character, glyph, texture);
+        return new MsdfTexturedCharacterGlyph(this, metricsSource ?? this, character, glyph, texture);
     }
 
     public static float ReadDistanceRange(byte[] json)
         => parseAtlasJson(json).Atlas.DistanceRange;
+
+    public static (string Weight, bool Italic) ParseStyle(string? style)
+    {
+        var weight = style ?? string.Empty;
+        var italic = weight.EndsWith("Italic", StringComparison.Ordinal);
+
+        if (italic)
+            weight = weight[..^"Italic".Length];
+
+        if (weight.Equals("Regular", StringComparison.Ordinal))
+            weight = string.Empty;
+
+        return (weight, italic);
+    }
 
     private void ensureLoaded()
         => loadCompletionSource.Task.GetResultSafely();

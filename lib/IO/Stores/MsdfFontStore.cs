@@ -38,8 +38,7 @@ public class MsdfFontStore : IDisposable, ITexturedGlyphLookupStore
         if (namespacedGlyphCache.TryGetValue(key, out var existing))
             return existing;
 
-        var source = tryGetSource(fontName);
-        return namespacedGlyphCache[key] = source?.Get(character);
+        return namespacedGlyphCache[key] = resolveGlyph(fontName, character);
     }
 
     public float? GetDistanceRange(string? fontName)
@@ -69,8 +68,48 @@ public class MsdfFontStore : IDisposable, ITexturedGlyphLookupStore
 
         foreach (var source in sources)
         {
-            if (source.Family.Equals(name, StringComparison.Ordinal))
+            if (!name.StartsWith(source.Family, StringComparison.Ordinal))
+                continue;
+
+            var style = name[source.Family.Length..];
+
+            if (style.Length > 0)
+            {
+                if (style[0] != '-')
+                    continue;
+
+                style = style[1..];
+            }
+
+            var (weight, italic) = MsdfGlyphSource.ParseStyle(style);
+
+            if (italic == source.IsItalic && weight.Equals(source.NormalizedWeight, StringComparison.Ordinal))
                 return source;
+        }
+
+        return null;
+    }
+
+    private ITexturedCharacterGlyph? resolveGlyph(string? fontName, char character)
+    {
+        var primary = string.IsNullOrEmpty(fontName) ? null : tryGetSource(fontName);
+
+        if (primary?.HasGlyph(character) == true)
+            return primary.Get(character);
+
+        foreach (var source in sources.OrderBy(s => primary != null && s.Family == primary.Family ? 0 : 1))
+        {
+            if (source == primary || !source.HasGlyph(character))
+                continue;
+
+            if (primary != null && source.DistanceRange != primary.DistanceRange)
+            {
+                Logger.Log($"{nameof(MsdfFontStore)}: '{character}' (U+{(int)character:X4}) falls back from '{primary.FontName}' to '{source.FontName}', " +
+                           $"whose distanceRange ({source.DistanceRange}) differs -- a single text draw uses one distanceRange, so its edges may look off.",
+                    LoggingTarget.Runtime, LogLevel.Important);
+            }
+
+            return source.Get(character, primary);
         }
 
         return null;

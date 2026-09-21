@@ -23,26 +23,30 @@ public readonly struct MsdfTexturedCharacterGlyph : ITexturedCharacterGlyph
     public char Character { get; }
 
     private readonly MsdfGlyphSource source;
+    private readonly float lineHeight;
 
-    internal MsdfTexturedCharacterGlyph(MsdfGlyphSource source, char character, MsdfGlyph glyph, Texture texture)
+    internal MsdfTexturedCharacterGlyph(MsdfGlyphSource source, MsdfGlyphSource metricsSource, char character, MsdfGlyph glyph, Texture texture)
     {
         this.source = source;
 
         Character = character;
         Texture = texture;
 
-        var lineHeight = source.LineHeight;
+        this.lineHeight = metricsSource.LineHeight;
+        var lineHeight = this.lineHeight;
         var planeBounds = glyph.PlaneBounds ?? default;
 
         Width = planeBounds.Width / lineHeight;
         Height = planeBounds.Height / lineHeight;
         XOffset = planeBounds.Left / lineHeight;
-        YOffset = (planeBounds.Top - source.Ascender) / lineHeight;
+        YOffset = (planeBounds.Top - metricsSource.Ascender) / lineHeight;
 
         XAdvance = glyph.Advance / lineHeight;
+
+        Baseline = -metricsSource.Ascender / lineHeight;
     }
 
     public float GetKerning<T>(T lastGlyph)
         where T : ICharacterGlyph
-        => source.Kerning.TryGetValue((lastGlyph.Character, Character), out var kerning) ? kerning / source.LineHeight : 0;
+        => source.Kerning.TryGetValue((lastGlyph.Character, Character), out var kerning) ? kerning / lineHeight : 0;
 }
