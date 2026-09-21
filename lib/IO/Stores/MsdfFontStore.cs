@@ -138,6 +138,7 @@ public class MsdfFontStore : IDisposable, ITexturedGlyphLookupStore
 
     public void Dispose()
     {
-        throw new NotImplementedException();
+        foreach (var source in sources)
+            source?.Dispose();
     }
 }
