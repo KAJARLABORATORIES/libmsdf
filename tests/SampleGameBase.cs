@@ -27,6 +27,8 @@ public abstract partial class SampleGameBase : Game
             msdfFonts.AddFont(Resources, $"WorkSans", $"{weight}Italic");
         }
 
+        msdfFonts.AddFont(Resources, $"NotoSansJP", "Regular");
+
         dependencies?.CacheAs(msdfFonts);
     }
 
