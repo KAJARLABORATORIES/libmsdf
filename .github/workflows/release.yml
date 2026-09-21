@@ -42,22 +42,22 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        threadingMode: ["SingleThread", "MultiThreaded"] # TODO: corte se não usar GameHost, igual ao ci.yml
+        threadingMode: ["SingleThread", "MultiThreaded"]
     env:
       OSU_EXECUTION_MODE: ${{ matrix.threadingMode }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4 # TODO: fixar por SHA
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
 
       - name: Install .NET
-        uses: actions/setup-dotnet@v4 # TODO: fixar por SHA
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
 
       - name: Test
-        run: dotnet test SuaSolucao.sln -c Release # TODO: nome real da .sln
+        run: dotnet test -c Release
 
   pack:
     name: Pack (libmsdf)
@@ -73,7 +73,7 @@ jobs:
       VERSION: ${{ github.ref_name }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4 # TODO: fixar por SHA
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
 
