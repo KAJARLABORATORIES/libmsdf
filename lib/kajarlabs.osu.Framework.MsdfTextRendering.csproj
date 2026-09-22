@@ -5,10 +5,4 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources/**/*" />
   </ItemGroup>
-  <ItemGroup Label="README">
-    <None Include="$(MSBuildThisFileDirectory)\..\.github\README.nuget.md" Visible="false">
-      <Pack>True</Pack>
-      <PackagePath>README.md</PackagePath>
-    </None>
-  </ItemGroup>
 </Project>
