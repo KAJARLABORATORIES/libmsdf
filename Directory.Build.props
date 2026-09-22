@@ -18,11 +18,15 @@
 	</PropertyGroup>
   <ItemGroup Label="Code Analysis">
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" PrivateAssets="All" />
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)analysis\banned-symbols.txt" />
-    <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)analysis\rules.globalconfig" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)\analysis\banned-symbols.txt" />
+    <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)\analysis\rules.globalconfig" />
   </ItemGroup>
-  <ItemGroup Label="Icon">
-    <None Include="$(MSBuildThisFileDirectory).github\assets\nupkg.png" Pack="true" PackagePath="icon.png" Visible="false" />
+  <ItemGroup Label="Assets">
+    <None Include="$(MSBuildThisFileDirectory)\.github\assets\nupkg.png" Pack="true" PackagePath="icon.png" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)\.github\README.nuget.md" Visible="false">
+      <Pack>True</Pack>
+      <PackagePath>README.md</PackagePath>
+    </None>
   </ItemGroup>
   <PropertyGroup Label="Code Analysis">
     <AnalysisMode>Default</AnalysisMode>
@@ -44,6 +48,7 @@
     <Product>KAJAR LABORATORIES MSDF Text Rendering for osu!framework</Product>
     <PackageReleaseNotes>Automated release.</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/KAJARLABORATORIES/libmsdf</PackageProjectUrl>
     <RepositoryUrl>https://github.com/KAJARLABORATORIES/libmsdf</RepositoryUrl>
   </PropertyGroup>
