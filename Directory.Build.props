@@ -23,10 +23,6 @@
   </ItemGroup>
   <ItemGroup Label="Assets">
     <None Include="$(MSBuildThisFileDirectory)\.github\assets\nupkg.png" Pack="true" PackagePath="icon.png" Visible="false" />
-    <None Include="$(MSBuildThisFileDirectory)\.github\README.nuget.md" Visible="false">
-      <Pack>True</Pack>
-      <PackagePath>README.md</PackagePath>
-    </None>
   </ItemGroup>
   <PropertyGroup Label="Code Analysis">
     <AnalysisMode>Default</AnalysisMode>
